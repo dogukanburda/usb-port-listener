@@ -1,7 +1,47 @@
-[![Build Status](https://travis-ci.org/serverdensity/python-daemon.svg?branch=master)](https://travis-ci.org/serverdensity/python-daemon)
+Port Listener System Service
+===========================
+
+This is a tool that takes actions when a USB device is plugged in and out.
+
+It consists of a python script that creates daemon process that runs `pyudev`'s `Monitor` object.  
+Python script is bundled to a onefile with `Pyinstaller` and can be automatically be started as a  `systemd` service.
+
+### Create executable files with Pyinstaller
+
+	pyinstaller --onefile daemon_start.py
+	pyinstaller --onefile daemon_stop.py
+
+If there is any issue with `pyudev` not being included in the executable, edit the `daemon_start.spec` file's hidden imports line as `hiddenimports=['pyudev']`
+
+### Copy the executables to /opt
+	
+	sudo cp ./dist/daemon_start /opt
+	sudo cp ./dist/daemon_stop /opt
+
+### Copy the service file to neccessary foler and navigate to it
+
+	sudo cp portlistener.service /etc/systemd/system/
+	cd /etc/systemd/system
+
+#### Start the service
+	
+	sudo systemctl start portlistener
+
+#### Verify the service is running
+
+	sudo systemctl status portlistener
+
+#### Enable the service to run automatically when the system reboots
+
+	sudo systemctl enable portlistener
+
+
+
 
 Python daemonizer class
 ====================
+
+[![Build Status](https://travis-ci.org/serverdensity/python-daemon.svg?branch=master)](https://travis-ci.org/serverdensity/python-daemon)
 
 This is a Python class that will daemonize your Python script so it can continue running in the background. It works on Unix, Linux and OS X, creates a PID file and has standard commands (start, stop, restart) + a foreground mode.
 
