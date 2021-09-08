@@ -1,4 +1,4 @@
-Port Listener System Service
+USB Port Listener System Service
 ===========================
 
 This is a tool that takes actions when a USB device is plugged in and out.
