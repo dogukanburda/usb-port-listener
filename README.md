@@ -1,24 +1,24 @@
 USB Port Listener System Service
 ===========================
 
-This is a tool that takes actions when a USB device is plugged in and out.
+This is a tool that performs actions when a USB device is plugged in or out.
 
-It consists of a python script that creates daemon process that runs `pyudev`'s `Monitor` object.  
-Python script is bundled to a onefile with `Pyinstaller` and can be automatically be started as a  `systemd` service.
+It consists of a python script that creates a daemon process to run `pyudev`'s `Monitor` object.  
+The Python script is bundled as onefile with `Pyinstaller` and can be automatically started as a `systemd` service.
 
 ### Create executable files with Pyinstaller
 
 	pyinstaller --onefile daemon_start.py
 	pyinstaller --onefile daemon_stop.py
 
-If there is any issue with `pyudev` not being included in the executable, edit the `daemon_start.spec` file's hidden imports line as `hiddenimports=['pyudev']`
+If there is any issue with `pyudev` not being included in the executable, edit the `daemon_start.spec` file's to add it to its hidden imports with `hiddenimports=['pyudev']`
 
 ### Copy the executables to /opt
 	
 	sudo cp ./dist/daemon_start /opt
 	sudo cp ./dist/daemon_stop /opt
 
-### Copy the service file to neccessary foler and navigate to it
+### Copy the file to the service folder and navigate to it
 
 	sudo cp portlistener.service /etc/systemd/system/
 	cd /etc/systemd/system
@@ -31,7 +31,7 @@ If there is any issue with `pyudev` not being included in the executable, edit t
 
 	sudo systemctl status portlistener
 
-#### Enable the service to run automatically when the system reboots
+#### Enable the service to run automatically when the os boots
 
 	sudo systemctl enable portlistener
 
