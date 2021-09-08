@@ -1,0 +1,13 @@
+[Unit]
+Description=portlistener
+
+[Service]
+ExecStart=/opt/daemon_start
+ExecStop=/opt/daemon_stop
+KillMode=process
+IgnoreSIGPIPE=true
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
