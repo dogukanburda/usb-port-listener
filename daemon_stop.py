@@ -13,5 +13,5 @@ class Agent(Daemon):
 
 
 # Simply calls the Daemon class' stop function to kill the daemon process
-agent = Agent('/home/ubuntu/daemon.pid')
+agent = Agent('/home/dogukan/daemon.pid')
 agent.stop()
