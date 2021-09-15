@@ -1,0 +1,11 @@
+[Unit]
+Description=Usb Listener Service
+
+[Service]
+# Command to execute when the service is started
+ExecStart=/home/dogukan/miniconda3/bin/python3 /home/dogukan/usb-port-listener/usblistener.py
+Type=simple
+Restart=always
+Environment=PYTHONUNBUFFERED=1
+[Install]
+WantedBy=multi-user.target
