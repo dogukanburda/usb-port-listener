@@ -29,6 +29,7 @@ import os
 import sys
 import time
 import signal
+from cysystemd import journal
 
 
 class Daemon(object):
@@ -74,12 +75,10 @@ class Daemon(object):
             sys.stderr.write(
                 "fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
             sys.exit(1)
-
         # Decouple from parent environment
         os.chdir(self.home_dir)
         os.setsid()
         os.umask(self.umask)
-
         # Do second fork
         try:
             pid = os.fork()
@@ -90,7 +89,6 @@ class Daemon(object):
             sys.stderr.write(
                 "fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
             sys.exit(1)
-
         if sys.platform != 'darwin':  # This block breaks on OS X
             # Redirect standard file descriptors
             sys.stdout.flush()
@@ -105,10 +103,11 @@ class Daemon(object):
                     se = open(self.stderr, 'a+', 1)
             else:
                 se = so
-            os.dup2(si.fileno(), sys.stdin.fileno())
-            os.dup2(so.fileno(), sys.stdout.fileno())
-            os.dup2(se.fileno(), sys.stderr.fileno())
-
+            self.log("Trying to start4...")
+            # os.dup2(si.fileno(), sys.stdin.fileno())
+            # os.dup2(so.fileno(), sys.stdout.fileno())
+            # os.dup2(se.fileno(), sys.stderr.fileno())
+            self.log("Trying to start5...")
         def sigtermhandler(signum, frame):
             self.daemon_alive = False
             sys.exit()
@@ -128,6 +127,7 @@ class Daemon(object):
         atexit.register(
             self.delpid)  # Make sure pid file is removed if we quit
         pid = str(os.getpid())
+        journal.send(message="Main pid:{} ".format(pid),priority=journal.Priority.INFO, PID=pid)
         open(self.pidfile, 'w+').write("%s\n" % pid)
 
     def delpid(self):
@@ -165,6 +165,7 @@ class Daemon(object):
             sys.exit(1)
 
         # Start the daemon
+        self.log("Daemonizing...")
         self.daemonize()
         self.run(*args, **kwargs)
 
