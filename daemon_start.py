@@ -12,9 +12,9 @@ process = None
 
 class Agent(Daemon):
     def __init__(self,pidfile):
-        super(Agent, self).__init__(pidfile,verbose = 0)
-        self.process_pidfile = '/home/ubuntu/popenpid.pid'
-        self.logfile = '/home/ubuntu/devices.txt'
+        super(Agent, self).__init__(pidfile,verbose = 1)
+        self.process_pidfile = '/home/dogukan/popenpid.pid'
+        self.logfile = '/home/dogukan/devices.txt'
 
 
     def handle_action(self,device):
@@ -27,7 +27,7 @@ class Agent(Daemon):
         global process
         device_path = device.device_path.split('/')
 
-        if device.action == 'add' and len(device_path)>11:
+        if device.action == 'add' and len(device_path)>6:
             # Logging usb events
             try:
                 with open(self.logfile, 'a') as f:
@@ -40,14 +40,14 @@ class Agent(Daemon):
                     f.write(' {} \n'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
             # Once the USB device is plugged in, call the script and run it as a background process
-            process = subprocess.Popen(['/usr/bin/python3', '/home/ubuntu/python-daemon/opencv_samplescript.py'], stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+            process = subprocess.Popen(['/home/dogukan/miniconda3/bin/python3', '/home/dogukan/usb-port-listener/longscript.py'], stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
             # Get the process pid and write it to a file
             pid = process.pid
             with open(self.process_pidfile, 'w') as pf:
                 pf.write(str(pid))
 
 
-        elif device.action == 'remove' and len(device_path)>11:
+        elif device.action == 'remove' and len(device_path)>6:
             # Logging usb events
             try:
                 with open(self.logfile, 'a') as f:
@@ -84,6 +84,6 @@ class Agent(Daemon):
 
 
 # Initialize the deamon agent
-agent = Agent('/home/ubuntu/daemon.pid')
+agent = Agent('/home/dogukan/daemon.pid')
 # Restart it in case its already running.
-agent.restart()
+agent.start()
