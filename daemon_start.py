@@ -7,6 +7,7 @@ from daemon import Daemon
 import subprocess
 import signal
 import os
+from cysystemd import journal
 
 process = None
 
@@ -40,9 +41,10 @@ class Agent(Daemon):
                     f.write(' {} \n'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
             # Once the USB device is plugged in, call the script and run it as a background process
-            process = subprocess.Popen(['/home/dogukan/miniconda3/bin/python3', '/home/dogukan/usb-port-listener/longscript.py'], stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+            process = subprocess.Popen(['/usr/bin/python3', '/home/dogukan/usb-port-listener/longscript.py'], stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
             # Get the process pid and write it to a file
             pid = process.pid
+            journal.send(message="Subprocess pid: {}".format(pid),priority=journal.Priority.INFO, PID=pid)
             with open(self.process_pidfile, 'w') as pf:
                 pf.write(str(pid))
 
@@ -83,6 +85,8 @@ class Agent(Daemon):
             time.sleep(1)
 
 
+#journal.write("Hello w0rld")
+journal.send(message="Daemon pid:{} ".format(str(os.getpid())),priority=journal.Priority.INFO, PID=str(os.getpid()))
 # Initialize the deamon agent
 agent = Agent('/home/dogukan/daemon.pid')
 # Restart it in case its already running.
