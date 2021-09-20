@@ -3,7 +3,9 @@ Description=Usb Listener Service
 
 [Service]
 # Command to execute when the service is started
-ExecStart=/home/dogukan/miniconda3/bin/python3 /home/dogukan/usb-port-listener/usblistener.py
+ExecStart=/usr/bin/python3 /home/dogukan/usb-port-listener/usblistener.py
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -QUIT $MAINPID
 Type=simple
 Restart=always
 Environment=PYTHONUNBUFFERED=1
