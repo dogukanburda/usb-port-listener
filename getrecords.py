@@ -1,15 +1,19 @@
-from cysystemd.reader import JournalReader, JournalOpenMode
+from cysystemd.reader import JournalReader, JournalOpenMode, Rule
 
-
+rules = (
+   Rule("SYSLOG_IDENTIFIER", "python3"))
 reader = JournalReader()
 reader.open(JournalOpenMode.SYSTEM)
-reader.seek_tail()
+# reader.seek_tail()
+# reader.previous(skip=100)
+reader.seek_head()
+reader.add_filter(rules)
 
-poll_timeout = 255
-
-reader.wait(poll_timeout)
+subprocess_pid = 0
 for record in reader:
+    print(record.data['MESSAGE'])
     try:
-        print(record.data['PID'])
-    except KeyError:
+        subprocess_pid = record.data['PID']
+        print(subprocess_pid)
+    except:
         pass
