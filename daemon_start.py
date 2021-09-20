@@ -14,8 +14,8 @@ process = None
 class Agent(Daemon):
     def __init__(self,pidfile):
         super(Agent, self).__init__(pidfile,verbose = 1)
-        self.process_pidfile = '/home/dogukan/popenpid.pid'
-        self.logfile = '/home/dogukan/devices.txt'
+        #self.process_pidfile = '/home/dogukan/popenpid.pid'
+        #self.logfile = '/home/dogukan/devices.txt'
 
 
     def handle_action(self,device):
@@ -30,39 +30,32 @@ class Agent(Daemon):
 
         if device.action == 'add' and len(device_path)>6:
             # Logging usb events
-            try:
-                with open(self.logfile, 'a') as f:
-                    f.write('{0.action},{0.sys_name},{0.sys_number},{0.device_path},'.format(device))
-                    f.write(' {} \n'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-            except:
-                with open(self.logfile, 'w') as f:
-                    f.write('action,sys_name,sys_number,device_path,datetime')
-                    f.write('{0.action},{0.sys_name},{0.sys_number},{0.device_path},'.format(device))
-                    f.write(' {} \n'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            # with open(self.logfile, 'a') as f:
+            #     f.write('{0.action},{0.sys_name},{0.sys_number},{0.device_path},'.format(device))
+            #     f.write(' {} \n'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            journal.send(message="[ADD] Device action detected. Vendor ID : {}".format(device.get('ID_VENDOR_FROM_DATABASE')),priority=journal.Priority.INFO)
 
             # Once the USB device is plugged in, call the script and run it as a background process
             process = subprocess.Popen(['/usr/bin/python3', '/home/dogukan/usb-port-listener/longscript.py'], stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
             # Get the process pid and write it to a file
             pid = process.pid
             journal.send(message="Subprocess pid: {}".format(pid),priority=journal.Priority.INFO, PID=pid)
-            with open(self.process_pidfile, 'w') as pf:
-                pf.write(str(pid))
+            # with open(self.process_pidfile, 'w') as pf:
+            #     pf.write(str(pid))
 
 
         elif device.action == 'remove' and len(device_path)>6:
             # Logging usb events
-            try:
-                with open(self.logfile, 'a') as f:
-                    f.write('{0.action},{0.sys_name},{0.sys_number},{0.device_path},'.format(device))
-                    f.write(' {} \n'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-            except:
-                with open(self.logfile, 'w') as f:
-                    f.write('action,sys_name,sys_number,device_path,datetime')
-                    f.write('{0.action},{0.sys_name},{0.sys_number},{0.device_path},'.format(device))
-                    f.write(' {} \n'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-            
+            # with open(self.logfile, 'a') as f:
+            #     f.write('{0.action},{0.sys_name},{0.sys_number},{0.device_path},'.format(device))
+            #     f.write(' {} \n'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            journal.send(message="[REMOVE] Device action detected. Vendor ID : {}".format(device.get('ID_VENDOR_FROM_DATABASE')),priority=journal.Priority.INFO)
+
             # Terminate the process by its pid
-            os.kill(process.pid, signal.SIGTERM) #or signal.SIGKILL
+            try:
+                os.kill(process.pid, signal.SIGTERM) #or signal.SIGKILL
+            except:
+                pass
             time.sleep(1)
             # Retrieves the child process' state in order not to fall into zombie state 
             process.poll()
