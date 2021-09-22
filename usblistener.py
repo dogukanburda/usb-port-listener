@@ -22,7 +22,8 @@ def handle_action(device):
 
         if device.action == 'add' and len(device_path)>6:
             # Logging usb events
-            journal.send(message="[ADD] Device action detected. Vendor ID : {}".format(device.get('ID_VENDOR_FROM_DATABASE')),priority=journal.Priority.INFO)
+            journal.send(message="[ADD] Device action detected. Vendor ID : {},{}".format(device.get('ID_VENDOR_FROM_DATABASE'),device.get('ID_VENDOR_ID')),priority=journal.Priority.INFO)
+            # usb_id = str(device.get('ID_VENDOR_ID')) + ':' + str(device.get('ID_MODEL_ID'))
 
             # Once the USB device is plugged in, call the script and run it as a background process
             process = subprocess.Popen(['/usr/bin/python3', '/home/dogukan/usb-port-listener/longscript.py'], stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
@@ -58,6 +59,19 @@ observer.start()
 observer.join(1)
 script_pid=os.getpid()
 journal.send(message="MAIN Script is started with pid: {}".format(script_pid),priority=journal.Priority.INFO, PID=str(script_pid), PTYPE='MAIN')
+
+def init_device_list():
+    #context = Context()
+    devices = []
+    for udevice in context.list_devices(subsystem='input'):
+        usb_id = str(udevice.get('ID_VENDOR_ID')) + ':' + str(udevice.get('ID_MODEL_ID'))+" "+str(udevice.get('ID_VENDOR_FROM_DATABASE'))
+        devices.append(usb_id)
+    return devices
+
+    logging.debug('Devices: %s', self.devices)
+
+a_devices = init_device_list()
+journal.send(message="Current devices: {}".format(a_devices),priority=journal.Priority.INFO, PID=str(script_pid), PTYPE='MAIN')
 
 while True:
     print(str(script_pid))
