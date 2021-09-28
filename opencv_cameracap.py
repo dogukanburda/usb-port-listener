@@ -16,7 +16,7 @@ run = True
 def handler_stop_signals(signum, frame):
     global run
     run = False
-    journal.send(message="SIGTERM or SIGKILL signal received. Script PID: {}".format(str(os.getpid())),priority=journal.Priority.INFO, PID=str(os.getpid()), PTYPE='SUB')
+    journal.send(message="[INFO] SIGTERM signal received. Script PID: {}".format(str(os.getpid())),priority=journal.Priority.INFO, PID=str(os.getpid()), PTYPE='SUB')
 
 signal.signal(signal.SIGTERM, handler_stop_signals)
 
