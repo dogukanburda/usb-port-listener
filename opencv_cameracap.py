@@ -19,7 +19,6 @@ def handler_stop_signals(signum, frame):
     journal.send(message="SIGTERM or SIGKILL signal received. Script PID: {}".format(str(os.getpid())),priority=journal.Priority.INFO, PID=str(os.getpid()), PTYPE='SUB')
 
 signal.signal(signal.SIGTERM, handler_stop_signals)
-signal.signal(signal.SIGKILL, handler_stop_signals)
 
 # gstreamer_pipeline returns a GStreamer pipeline for capturing from the CSI camera
 # Defaults to 1280x720 @ 30fps
@@ -28,11 +27,11 @@ signal.signal(signal.SIGKILL, handler_stop_signals)
 
 
 def gstreamer_pipeline(
-    capture_width=1280,
-    capture_height=720,
-    display_width=1280,
-    display_height=720,
-    framerate=30,
+    capture_width=1920,
+    capture_height=1080,
+    display_width=1920,
+    display_height=1080,
+    framerate=29,
     flip_method=2,
 ):
     return (
@@ -56,9 +55,10 @@ def gstreamer_pipeline(
 
 
 def cameracap():
+    journal.send(message="[INFO] OpenCV Script started. Script PID: {}".format(str(os.getpid())),priority=journal.Priority.INFO, PID=str(os.getpid()), PTYPE='SUB')
     cap = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter('/home/dogukan/output.mp4',fourcc, 24, (1280,720))
+    out = cv2.VideoWriter('/home/dogukan/output.mp4',fourcc, 20, (1920,1080))
     # [TODO] Add gstreamer writing pipeline instead of opencv videowriter
     if cap.isOpened():
         while run:
@@ -68,9 +68,9 @@ def cameracap():
         cap.release()
         out.release()
         cv2.destroyAllWindows()
-        journal.send(message="OpenCV VideoCapture ended. Script PID: {}".format(str(os.getpid())),priority=journal.Priority.INFO, PID=str(os.getpid()), PTYPE='SUB')
+        journal.send(message="[INFO] OpenCV VideoCapture ended. Script PID: {}".format(str(os.getpid())),priority=journal.Priority.INFO, PID=str(os.getpid()), PTYPE='SUB')
     else:
-        journal.send(message="Unable to open camera. Script PID: {}".format(str(os.getpid())),priority=journal.Priority.INFO, PID=str(os.getpid()), PTYPE='SUB')
+        journal.send(message="[INFO] Unable to open camera. Script PID: {}".format(str(os.getpid())),priority=journal.Priority.INFO, PID=str(os.getpid()), PTYPE='SUB')
         print("Unable to open camera")
 
 
