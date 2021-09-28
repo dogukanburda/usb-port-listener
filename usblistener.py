@@ -45,8 +45,8 @@ journal.send(message="[INFO] MAIN Script is started with pid: {}".format(script_
 def init_device_list():
     #context = Context()
     devices = []
-    for udevice in context.list_devices(subsystem='input'):
-        usb_id = "Vendor: " + str(udevice.get('ID_VENDOR_FROM_DATABASE')) + "with id: " + str(udevice.get('ID_VENDOR_ID')) +"and serial number: " + str(udevice.get('ID_SERIAL_SHORT'))
+    for udevice in context.list_devices(subsystem='usb'):
+        usb_id = "Vendor: " + str(udevice.get('ID_VENDOR_FROM_DATABASE')) + " with id: " + str(udevice.get('ID_VENDOR_ID')) +" and serial number: " + str(udevice.get('ID_SERIAL_SHORT'))
         devices.append(usb_id)
     return devices
 
