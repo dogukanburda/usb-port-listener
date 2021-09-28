@@ -8,14 +8,20 @@ import subprocess
 import signal
 from cysystemd import journal
 
-
+supported_models = ['1000','6544']
 process = None
 def handle_action(device):
         """ Method to call when handling device I/O events """
         global process
         if device.action == 'add':
             # Logging usb events
+            # device_vendor_id = int("0x" + device.get("ID_VENDOR_ID"), 16)
+            # device_product_id = int("0x" + device.get("ID_MODEL_ID"), 16)
+            if device.get('ID_VENDOR_ID') == '0930' and device.get('ID_MODEL_ID') in supported_models:
+                pass
+
             journal.send(message="[ADD] Device action detected. Vendor ID : {}, Serial Number: {}".format(device.get('ID_VENDOR_FROM_DATABASE'),device.get('ID_SERIAL_SHORT')),priority=journal.Priority.INFO)
+            journal.send(message="[ADD] Model ID : {}, Vendor Hex Number: {}".format(device.get('ID_MODEL_ID'),device.get('ID_VENDOR_ID')),priority=journal.Priority.INFO)
             # Once the USB device is plugged in, call the script and run it as a background process
             process = subprocess.Popen(['/usr/bin/python3', '/home/dogukan/usb-port-listener/opencv_cameracap.py'], stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
             # Get the process pid and log to the journal         
@@ -25,9 +31,10 @@ def handle_action(device):
             # Logging usb events
             journal.send(message="[REMOVE] Device action detected. Vendor ID : {}, Serial Number: {}".format(device.get('ID_VENDOR_FROM_DATABASE'),device.get('ID_SERIAL_SHORT'),priority=journal.Priority.INFO))
             # Terminate the process by its pid
-            os.kill(process.pid, signal.SIGTERM) #or signal.SIGKILL
+            os.kill(process.pid, signal.SIGTERM) # The signals SIGKILL and SIGSTOP cannot be caught, blocked, or ignored.
             time.sleep(1)
-            # Retrieves the child process' state in order not to fall into zombie state 
+            # Retrieves the child process' state in order not to fall into zombie state
+            # Once the subprocess is terminated, it needs to be poll'ed to be fully exited.
             process.poll()
 
 context = Context()
